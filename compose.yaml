@@ -1,0 +1,60 @@
+services:
+  database:
+    image: postgres:17-alpine
+    container_name: famylist_database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-famylist}
+      POSTGRES_USER: ${POSTGRES_USER:-famylist_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-famylist_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-famylist_user} -d ${POSTGRES_DB:-famylist}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - famylist_network
+
+  backend:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: famylist_backend
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./backend:/var/www/backend
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-famylist_user}:${POSTGRES_PASSWORD:-famylist_dev_password}@database:5432/${POSTGRES_DB:-famylist}?serverVersion=17&charset=utf8"
+    networks:
+      - famylist_network
+
+  webserver:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: famylist_webserver
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    volumes:
+      - ./backend:/var/www/backend
+    networks:
+      - famylist_network
+
+volumes:
+  postgres_data:
+    name: famylist_postgres_data
+
+networks:
+  famylist_network:
+    name: famylist_network
+    driver: bridge
