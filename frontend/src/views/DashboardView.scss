@@ -1,0 +1,94 @@
+@use '@/assets/styles/mixins' as *;
+
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
+
+  &__content {
+    flex: 1;
+    max-width: 600px;
+    width: 100%;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+  }
+}
+
+.navbar {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.75rem 2rem;
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  &__logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  &__title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-primary);
+
+    &-accent {
+      color: var(--color-primary-light);
+    }
+  }
+}
+
+.api-card {
+  @include card-surface;
+  padding: 2rem;
+  text-align: center;
+
+  &__heading {
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    &--loading {
+      background: var(--color-warning-bg);
+      color: var(--color-warning);
+    }
+
+    &--ok {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+
+      .api-card__dot {
+        background: var(--color-success);
+      }
+    }
+
+    &--error {
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+
+      .api-card__dot {
+        background: var(--color-danger);
+      }
+    }
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+}

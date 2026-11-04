@@ -1,0 +1,44 @@
+// Design Tokens — Famylist
+:root {
+  // Palette de couleurs
+  --color-primary: #001e37;       // Bleu Nuit profond (Titres, contraste certifié RGAA)
+  --color-primary-light: #32627c; // Bleu Canard / Teal (Accents secondaires, surbrillances)
+  --color-accent: #f76c6c;        // Corail chaleureux (Actions clés, boutons d'action)
+  --color-brand-light: #fdecef;   // Rose poudré (Fond doux, badges de surprise)
+  --color-success: #2e7d32;       // Vert Action (Réservations, statuts validés)
+  --color-success-bg: #e8f5e9;    // Vert fond doux
+  --color-warning: #ed6c02;       // Orange alerte
+  --color-warning-bg: #fff4e5;
+  --color-danger: #d32f2f;        // Rouge suppression
+  --color-danger-bg: #ffebee;
+
+  // Neutres & Surfaces
+  --color-bg: #f8fafc;            // Fond de page principal
+  --color-bg-alt: #f0f4f8;        // Fond secondaire / Panneaux
+  --color-surface: #ffffff;       // Blanc pur pour les cartes
+  --color-border: #e2e8f0;        // Bordure standard
+  --color-border-light: #edf2f7;  // Bordure discrète
+
+  // Typographies
+  --color-text: #001e37;          // Texte principal
+  --color-text-body: #475569;     // Texte courant
+  --color-text-muted: #64748b;    // Texte estompé / Légendes
+  --font-heading: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  // Rayons de courbure (Border Radius)
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  // Ombres portées (Box Shadows)
+  --shadow-sm: 0 2px 6px rgba(0, 30, 55, 0.04);
+  --shadow-card: 0 4px 16px rgba(0, 30, 55, 0.06);
+  --shadow-lg: 0 12px 36px rgba(0, 30, 55, 0.12);
+  --shadow-nav: 0 2px 8px rgba(0, 30, 55, 0.04);
+
+  // Transitions
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}

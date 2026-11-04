@@ -1,0 +1,52 @@
+<template>
+  <div class="dashboard-page">
+    <header class="navbar">
+      <div class="navbar__brand">
+        <img src="/famylist-logo.svg" alt="Famylist" class="navbar__logo" />
+        <span class="navbar__title">Famy<span class="navbar__title-accent">list</span></span>
+      </div>
+    </header>
+
+    <main class="dashboard-page__content">
+      <section class="api-card">
+        <h1 class="api-card__heading">Initialisation du projet</h1>
+
+        <div v-if="isLoading" class="api-card__status api-card__status--loading">
+          Vérification de la connexion à l'API...
+        </div>
+
+        <div v-else-if="healthData && healthData.status === 'ok'" class="api-card__status api-card__status--ok">
+          <span class="api-card__dot"></span>
+          <span>API & Base de données connectées (Symfony {{ healthData.symfony_version }} - PostgreSQL 17)</span>
+        </div>
+
+        <div v-else class="api-card__status api-card__status--error">
+          <span class="api-card__dot"></span>
+          <span>Erreur de connexion à l'API</span>
+        </div>
+      </section>
+    </main>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const healthData = ref(null)
+const isLoading = ref(true)
+
+onMounted(async () => {
+  try {
+    const response = await fetch('http://localhost:8080/api/health')
+    if (response.ok) {
+      healthData.value = await response.json()
+    }
+  } catch (e) {
+    healthData.value = null
+  } finally {
+    isLoading.value = false
+  }
+})
+</script>
+
+<style scoped lang="scss" src="./DashboardView.scss"></style>
