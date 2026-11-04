@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vue-tsc --build && vite build",
     "preview": "vite preview",
-    "type-check": "vue-tsc --build"
+    "type-check": "vue-tsc --build",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "pinia": "^3.0.4",
@@ -18,7 +21,12 @@
     "@tsconfig/node22": "^22.0.6",
     "@types/node": "^26.6.6",
     "@vitejs/plugin-vue": "^6.0.10",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/tsconfig": "^0.9.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-vue": "^10.12.0",
+    "prettier": "^3.9.10",
     "sass-embedded": "^1.107.1",
     "typescript": "^6.0.3",
     "vite": "^8.3.5",
