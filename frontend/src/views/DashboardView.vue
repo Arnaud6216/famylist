@@ -29,19 +29,27 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const healthData = ref(null)
-const isLoading = ref(true)
+interface HealthResponse {
+  status: string
+  php_version?: string
+  symfony_version?: string
+  database?: string
+  database_version?: string
+}
+
+const healthData = ref<HealthResponse | null>(null)
+const isLoading = ref<boolean>(true)
 
 onMounted(async () => {
   try {
     const response = await fetch('http://localhost:8080/api/health')
     if (response.ok) {
-      healthData.value = await response.json()
+      healthData.value = (await response.json()) as HealthResponse
     }
-  } catch (e) {
+  } catch {
     healthData.value = null
   } finally {
     isLoading.value = false
