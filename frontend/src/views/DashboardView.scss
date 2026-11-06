@@ -19,6 +19,9 @@
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   padding: 0.75rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   &__brand {
     display: flex;
@@ -39,6 +42,28 @@
 
     &-accent {
       color: var(--color-primary-light);
+    }
+  }
+
+  &__action-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-surface);
+    background: var(--color-accent);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background: #e55a5a;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
     }
   }
 }
