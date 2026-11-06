@@ -2,9 +2,14 @@
   <div class="dashboard-page">
     <header class="navbar">
       <div class="navbar__brand">
-        <img src="/famylist-logo.svg" alt="Famylist" class="navbar__logo" />
+        <img :src="'/famylist-logo.svg'" alt="Famylist" class="navbar__logo" />
         <span class="navbar__title">Famy<span class="navbar__title-accent">list</span></span>
       </div>
+      <nav class="navbar__actions">
+        <router-link to="/register" class="navbar__action-btn">
+          Créer un compte
+        </router-link>
+      </nav>
     </header>
 
     <main class="dashboard-page__content">
