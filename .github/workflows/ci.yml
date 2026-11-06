@@ -78,7 +78,7 @@ jobs:
         run: php bin/console doctrine:migrations:migrate --no-interaction --env=test
 
       - name: Run automated tests (PHPUnit)
-        run: bin/phpunit
+        run: php bin/phpunit
 
   frontend:
     name: Frontend (Vue 3 / TypeScript)
