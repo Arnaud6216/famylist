@@ -6,15 +6,35 @@
         <span class="navbar__title">Famy<span class="navbar__title-accent">list</span></span>
       </div>
       <nav class="navbar__actions">
-        <router-link to="/register" class="navbar__action-btn">
-          Créer un compte
-        </router-link>
+        <template v-if="authStore.isAuthenticated">
+          <span class="navbar__user-greeting">
+            Bonjour, <strong>{{ authStore.user?.firstName }}</strong> !
+          </span>
+          <button
+            type="button"
+            class="navbar__action-btn navbar__action-btn--secondary"
+            :disabled="authStore.isLoading"
+            @click="handleLogout"
+          >
+            Se déconnecter
+          </button>
+        </template>
+        <template v-else>
+          <router-link to="/login" class="navbar__action-btn navbar__action-btn--secondary">
+            Se connecter
+          </router-link>
+          <router-link to="/register" class="navbar__action-btn">
+            Créer un compte
+          </router-link>
+        </template>
       </nav>
     </header>
 
     <main class="dashboard-page__content">
       <section class="api-card">
-        <h1 class="api-card__heading">Initialisation du projet</h1>
+        <h1 class="api-card__heading">
+          {{ authStore.isAuthenticated ? `Bienvenue sur FamyList, ${authStore.user?.firstName} !` : 'Initialisation du projet' }}
+        </h1>
 
         <div v-if="isLoading" class="api-card__status api-card__status--loading">
           Vérification de la connexion à l'API...
@@ -36,6 +56,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 interface HealthResponse {
   status: string
@@ -47,6 +72,11 @@ interface HealthResponse {
 
 const healthData = ref<HealthResponse | null>(null)
 const isLoading = ref<boolean>(true)
+
+async function handleLogout(): Promise<void> {
+  await authStore.logout()
+  await router.push('/')
+}
 
 onMounted(async () => {
   try {
