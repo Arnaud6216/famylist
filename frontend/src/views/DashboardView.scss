@@ -45,6 +45,21 @@
     }
   }
 
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__user-greeting {
+    font-size: 0.9rem;
+    color: var(--color-text);
+
+    strong {
+      color: var(--color-primary);
+    }
+  }
+
   &__action-btn {
     display: inline-flex;
     align-items: center;
@@ -53,9 +68,12 @@
     font-weight: 600;
     color: var(--color-surface);
     background: var(--color-accent);
+    border: 1px solid transparent;
     border-radius: var(--radius-md);
     text-decoration: none;
-    transition: background-color var(--transition-fast);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all var(--transition-fast);
 
     &:hover {
       background: #e55a5a;
@@ -64,6 +82,18 @@
     &:focus-visible {
       outline: 2px solid var(--color-primary);
       outline-offset: 2px;
+    }
+
+    &--secondary {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border-color: var(--color-border);
+
+      &:hover {
+        background: var(--color-bg);
+        border-color: var(--color-primary-light);
+        color: var(--color-primary);
+      }
     }
   }
 }
