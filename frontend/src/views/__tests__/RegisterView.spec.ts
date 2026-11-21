@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import RegisterView from '../RegisterView.vue'
+import { setActivePinia, createPinia } from 'pinia'
+import RegisterView from '../Register/RegisterView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const pushMock = vi.fn()
 vi.mock('vue-router', async () => {
@@ -15,6 +17,7 @@ vi.mock('vue-router', async () => {
 
 describe('RegisterView', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.restoreAllMocks()
     pushMock.mockClear()
   })
@@ -92,6 +95,12 @@ describe('RegisterView', () => {
   })
 
   it('handles successful registration with Arnaud Guevaer (HTTP 201)', async () => {
+    const authStore = useAuthStore()
+    const loginSpy = vi.spyOn(authStore, 'login').mockResolvedValue({
+      success: true,
+      message: 'Connexion réussie.',
+    })
+
     const fetchMock = vi.fn().mockResolvedValue({
       status: 201,
       ok: true,
@@ -128,7 +137,8 @@ describe('RegisterView', () => {
       password: 'Password123!',
     })
 
-    // Vérifie la redirection immédiate vers l'accueil
+    // Vérifie l'authentification automatique immédiate et la redirection vers l'accueil
+    expect(loginSpy).toHaveBeenCalledWith('arnaud@famylist.fr', 'Password123!')
     expect(pushMock).toHaveBeenCalledWith('/')
   })
 
