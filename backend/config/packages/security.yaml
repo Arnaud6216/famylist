@@ -26,6 +26,8 @@ security:
                 failure_handler: App\Security\AuthenticationFailureHandler
             logout:
                 path: /api/logout
+                invalidate_session: true
+                delete_cookies: ['PHPSESSID']
 
     access_control:
         - { path: ^/api/register, roles: PUBLIC_ACCESS }

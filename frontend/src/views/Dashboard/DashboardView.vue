@@ -7,9 +7,12 @@
       </div>
       <nav class="navbar__actions">
         <template v-if="authStore.isAuthenticated">
-          <span class="navbar__user-greeting">
+          <router-link to="/profile" class="navbar__user-greeting">
             Bonjour, <strong>{{ authStore.user?.firstName }}</strong> !
-          </span>
+          </router-link>
+          <router-link to="/profile" class="navbar__action-btn navbar__action-btn--secondary">
+            Mon Profil
+          </router-link>
           <button
             type="button"
             class="navbar__action-btn navbar__action-btn--secondary"
