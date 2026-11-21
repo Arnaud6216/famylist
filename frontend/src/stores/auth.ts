@@ -81,6 +81,90 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updateProfile(data: {
+    firstName: string
+    lastName: string
+    email: string
+  }): Promise<{ success: boolean; message?: string; errors?: Record<string, string[] | string> }> {
+    isLoading.value = true
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/me`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      })
+
+      if (response.ok) {
+        const responseData = (await response.json()) as { message: string; user: UserProfile }
+        user.value = responseData.user
+        return { success: true, message: responseData.message }
+      }
+
+      const errorData = (await response.json().catch(() => ({}))) as {
+        message?: string
+        errors?: Record<string, string[] | string>
+      }
+
+      return {
+        success: false,
+        message: errorData.message || 'Données non conformes.',
+        errors: errorData.errors,
+      }
+    } catch {
+      return {
+        success: false,
+        message: 'Impossible de contacter le serveur. Veuillez vérifier votre connexion.',
+      }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message?: string; errors?: Record<string, string[] | string> }> {
+    isLoading.value = true
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/me/password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      })
+
+      if (response.ok) {
+        const data = (await response.json()) as { message: string }
+        return { success: true, message: data.message }
+      }
+
+      const errorData = (await response.json().catch(() => ({}))) as {
+        message?: string
+        errors?: Record<string, string[] | string>
+      }
+
+      return {
+        success: false,
+        message: errorData.message || 'Données non conformes.',
+        errors: errorData.errors,
+      }
+    } catch {
+      return {
+        success: false,
+        message: 'Impossible de contacter le serveur. Veuillez vérifier votre connexion.',
+      }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function logout(): Promise<void> {
     isLoading.value = true
     try {
@@ -104,6 +188,8 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     fetchCurrentUser,
     login,
+    updateProfile,
+    changePassword,
     logout,
   }
 })

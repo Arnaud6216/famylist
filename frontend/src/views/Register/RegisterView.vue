@@ -138,48 +138,11 @@
         </span>
 
         <!-- Checklist des critères de sécurité -->
-        <div
-          v-if="isPasswordFocused || form.password.length > 0"
+        <PasswordCriteria
           id="password-criteria"
-          class="password-criteria"
-          aria-label="Critères de sécurité du mot de passe"
-        >
-          <div
-            class="password-criteria__item"
-            :class="{ 'password-criteria__item--valid': criteria.hasMinLength }"
-          >
-            <span class="password-criteria__icon" aria-hidden="true">{{ criteria.hasMinLength ? '✓' : '○' }}</span>
-            <span>12 caractères minimum</span>
-          </div>
-          <div
-            class="password-criteria__item"
-            :class="{ 'password-criteria__item--valid': criteria.hasUppercase }"
-          >
-            <span class="password-criteria__icon" aria-hidden="true">{{ criteria.hasUppercase ? '✓' : '○' }}</span>
-            <span>1 majuscule</span>
-          </div>
-          <div
-            class="password-criteria__item"
-            :class="{ 'password-criteria__item--valid': criteria.hasLowercase }"
-          >
-            <span class="password-criteria__icon" aria-hidden="true">{{ criteria.hasLowercase ? '✓' : '○' }}</span>
-            <span>1 minuscule</span>
-          </div>
-          <div
-            class="password-criteria__item"
-            :class="{ 'password-criteria__item--valid': criteria.hasDigit }"
-          >
-            <span class="password-criteria__icon" aria-hidden="true">{{ criteria.hasDigit ? '✓' : '○' }}</span>
-            <span>1 chiffre</span>
-          </div>
-          <div
-            class="password-criteria__item"
-            :class="{ 'password-criteria__item--valid': criteria.hasSpecialChar }"
-          >
-            <span class="password-criteria__icon" aria-hidden="true">{{ criteria.hasSpecialChar ? '✓' : '○' }}</span>
-            <span>1 caractère spécial (@$!%*?&)</span>
-          </div>
-        </div>
+          :password="form.password"
+          :visible="isPasswordFocused || form.password.length > 0"
+        />
       </div>
 
       <!-- Bouton de soumission S'inscrire -->
@@ -208,9 +171,13 @@
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import AuthLayout from '@/components/layout/AuthLayout.vue'
+import PasswordCriteria from '@/components/auth/PasswordCriteria/PasswordCriteria.vue'
+import { isPasswordStrong } from '@/utils/password'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 interface FormState {
   firstName: string
@@ -237,24 +204,7 @@ const isLoading = ref<boolean>(false)
 const showPassword = ref<boolean>(false)
 const isPasswordFocused = ref<boolean>(false)
 
-// Critères dynamiques du mot de passe
-const criteria = computed(() => ({
-  hasMinLength: form.password.length >= 12,
-  hasUppercase: /[A-Z]/.test(form.password),
-  hasLowercase: /[a-z]/.test(form.password),
-  hasDigit: /[0-9]/.test(form.password),
-  hasSpecialChar: /[@$!%*?&]/.test(form.password),
-}))
-
-const isPasswordValid = computed(() => {
-  return (
-    criteria.value.hasMinLength &&
-    criteria.value.hasUppercase &&
-    criteria.value.hasLowercase &&
-    criteria.value.hasDigit &&
-    criteria.value.hasSpecialChar
-  )
-})
+const isPasswordValid = computed(() => isPasswordStrong(form.password))
 
 function clearFieldError(field: string): void {
   if (fieldErrors.value[field]) {
@@ -311,6 +261,8 @@ async function handleSubmit(): Promise<void> {
     })
 
     if (response.status === 201) {
+      // Authentification automatique immédiate pour ouvrir la session sécurisée
+      await authStore.login(form.email, form.password)
       await router.push('/')
       return
     }
