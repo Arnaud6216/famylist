@@ -6,8 +6,8 @@ namespace App\Controller\Api\Auth;
 
 use App\DTO\UpdateProfileDTO;
 use App\Entity\User;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Exception\EmailAlreadyUsedException;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,8 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UpdateProfileController extends AbstractController
 {
     public function __construct(
-        private readonly UserRepository $userRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly UserService $userService,
         private readonly SerializerInterface $serializer,
         private readonly ValidatorInterface $validator,
     ) {
@@ -65,34 +64,26 @@ class UpdateProfileController extends AbstractController
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $newEmail = (string) $dto->email;
-        if (strtolower($newEmail) !== strtolower($user->getEmail())) {
-            $existingUser = $this->userRepository->findOneBy(['email' => $newEmail]);
-            if ($existingUser && $existingUser->getId() !== $user->getId()) {
-                return new JsonResponse([
-                    'message' => 'Cette adresse email est déjà utilisée.',
-                    'errors' => [
-                        'email' => ['Cette adresse email est déjà utilisée.'],
-                    ],
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
+        try {
+            $updatedUser = $this->userService->updateProfile($user, $dto);
+        } catch (EmailAlreadyUsedException $e) {
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+                'errors' => [
+                    'email' => [$e->getMessage()],
+                ],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
-        $user->setFirstName((string) $dto->firstName);
-        $user->setLastName((string) $dto->lastName);
-        $user->setEmail($newEmail);
-
-        $this->entityManager->flush();
 
         return new JsonResponse([
             'message' => 'Profil mis à jour avec succès.',
             'user' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName(),
-                'roles' => $user->getRoles(),
-                'createdAt' => $user->getCreatedAt()->format(\DateTimeInterface::ATOM),
+                'id' => $updatedUser->getId(),
+                'email' => $updatedUser->getEmail(),
+                'firstName' => $updatedUser->getFirstName(),
+                'lastName' => $updatedUser->getLastName(),
+                'roles' => $updatedUser->getRoles(),
+                'createdAt' => $updatedUser->getCreatedAt()->format(\DateTimeInterface::ATOM),
             ],
         ], Response::HTTP_OK);
     }

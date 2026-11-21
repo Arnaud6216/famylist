@@ -38,7 +38,7 @@
       :class="{ 'password-criteria__item--valid': criteria.hasSpecialChar }"
     >
       <span class="password-criteria__icon" aria-hidden="true">{{ criteria.hasSpecialChar ? '✓' : '○' }}</span>
-      <span>1 caractère spécial (@$!%*?&)</span>
+      <span>1 caractère spécial</span>
     </div>
   </div>
 </template>

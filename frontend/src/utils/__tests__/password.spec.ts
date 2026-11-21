@@ -35,6 +35,9 @@ describe('password utils', () => {
     // Caractère spécial
     expect(checkPasswordCriteria('MotDePasse12345').hasSpecialChar).toBe(false)
     expect(checkPasswordCriteria('MotDePasse12345!').hasSpecialChar).toBe(true)
+    expect(checkPasswordCriteria('MotDePasse12345#').hasSpecialChar).toBe(true)
+    expect(checkPasswordCriteria('MotDePasse12345_').hasSpecialChar).toBe(true)
+    expect(checkPasswordCriteria('MotDePasse12345-').hasSpecialChar).toBe(true)
   })
 
   it('validates a compliant password fulfilling all 5 criteria', () => {

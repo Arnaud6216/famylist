@@ -6,12 +6,12 @@ namespace App\Controller\Api\Auth;
 
 use App\DTO\ChangePasswordDTO;
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Exception\InvalidCurrentPasswordException;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -21,8 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ChangePasswordController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly UserService $userService,
         private readonly SerializerInterface $serializer,
         private readonly ValidatorInterface $validator,
     ) {
@@ -65,21 +64,16 @@ class ChangePasswordController extends AbstractController
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        // Vérification du mot de passe actuel
-        if (!$this->passwordHasher->isPasswordValid($user, (string) $dto->currentPassword)) {
+        try {
+            $this->userService->changePassword($user, $dto);
+        } catch (InvalidCurrentPasswordException $e) {
             return new JsonResponse([
-                'message' => 'Le mot de passe actuel est incorrect.',
+                'message' => $e->getMessage(),
                 'errors' => [
-                    'currentPassword' => ['Le mot de passe actuel est incorrect.'],
+                    'currentPassword' => [$e->getMessage()],
                 ],
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
-        // Hachage et mise à jour du nouveau mot de passe
-        $hashedPassword = $this->passwordHasher->hashPassword($user, (string) $dto->newPassword);
-        $user->setPassword($hashedPassword);
-
-        $this->entityManager->flush();
 
         return new JsonResponse([
             'message' => 'Mot de passe modifié avec succès.',

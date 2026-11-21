@@ -262,8 +262,12 @@ async function handleSubmit(): Promise<void> {
 
     if (response.status === 201) {
       // Authentification automatique immédiate pour ouvrir la session sécurisée
-      await authStore.login(form.email, form.password)
-      await router.push('/')
+      const loginResult = await authStore.login(form.email, form.password)
+      if (loginResult.success) {
+        await router.push('/')
+      } else {
+        await router.push('/login')
+      }
       return
     }
 

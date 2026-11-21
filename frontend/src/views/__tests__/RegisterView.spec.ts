@@ -142,6 +142,36 @@ describe('RegisterView', () => {
     expect(pushMock).toHaveBeenCalledWith('/')
   })
 
+  it('redirects to /login when auto-login fails after HTTP 201 registration', async () => {
+    const authStore = useAuthStore()
+    const loginSpy = vi.spyOn(authStore, 'login').mockResolvedValue({
+      success: false,
+      message: 'Erreur de connexion.',
+    })
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      status: 201,
+      ok: true,
+      json: async () => ({
+        message: 'Inscription réussie.',
+      }),
+    })
+    globalThis.fetch = fetchMock
+
+    const wrapper = createWrapper()
+
+    await wrapper.find('#firstName').setValue('Arnaud')
+    await wrapper.find('#lastName').setValue('Guevaer')
+    await wrapper.find('#email').setValue('arnaud@famylist.fr')
+    await wrapper.find('#password').setValue('Password123!')
+
+    await wrapper.find('form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(loginSpy).toHaveBeenCalledWith('arnaud@famylist.fr', 'Password123!')
+    expect(pushMock).toHaveBeenCalledWith('/login')
+  })
+
   it('displays duplicate email error from backend (HTTP 422)', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       status: 422,

@@ -12,7 +12,7 @@ export interface PasswordCriteria {
  * 2. Au moins une majuscule
  * 3. Au moins une minuscule
  * 4. Au moins un chiffre
- * 5. Au moins un caractère spécial (@$!%*?&)
+ * 5. Au moins un caractère spécial (conforme à la règle backend [\W_])
  */
 export function checkPasswordCriteria(password: string): PasswordCriteria {
   return {
@@ -20,7 +20,7 @@ export function checkPasswordCriteria(password: string): PasswordCriteria {
     hasUppercase: /[A-Z]/.test(password),
     hasLowercase: /[a-z]/.test(password),
     hasDigit: /[0-9]/.test(password),
-    hasSpecialChar: /[@$!%*?&]/.test(password),
+    hasSpecialChar: /[\W_]/.test(password),
   }
 }
 
