@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DashboardView from '@/views/DashboardView.vue'
+import DashboardView from '@/views/Dashboard/DashboardView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -13,7 +13,7 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      component: () => import('@/views/RegisterView.vue'),
+      component: () => import('@/views/Register/RegisterView.vue'),
       meta: { guestOnly: true },
     },
     {
@@ -21,6 +21,12 @@ const router = createRouter({
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
       meta: { guestOnly: true },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/Profile/ProfileView.vue'),
+      meta: { requiresAuth: true },
     },
   ],
 })
@@ -38,6 +44,11 @@ router.beforeEach(async (to, from, next) => {
   // Redirection des utilisateurs déjà connectés accédant à /login ou /register
   if (to.meta.guestOnly && authStore.isAuthenticated) {
     return next({ name: 'dashboard' })
+  }
+
+  // Redirection vers /login pour les routes protégées nécessitant une authentification
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    return next({ name: 'login' })
   }
 
   next()

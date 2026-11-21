@@ -22,10 +22,19 @@ class LogoutSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
+        if ($request->hasSession()) {
+            $request->getSession()->invalidate();
+        }
+
         if (str_starts_with($request->getPathInfo(), '/api/')) {
-            $event->setResponse(new JsonResponse([
+            $response = new JsonResponse([
                 'message' => 'Déconnexion réussie.',
-            ], Response::HTTP_OK));
+            ], Response::HTTP_OK);
+
+            // Invalider le cookie de session PHPSESSID côté client en respectant le protocole (Secure en HTTPS)
+            $response->headers->clearCookie('PHPSESSID', '/', null, $request->isSecure(), true, 'lax');
+
+            $event->setResponse($response);
         }
     }
 }

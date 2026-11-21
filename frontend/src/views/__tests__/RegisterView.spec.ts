@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import RegisterView from '../RegisterView.vue'
+import { setActivePinia, createPinia } from 'pinia'
+import RegisterView from '../Register/RegisterView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const pushMock = vi.fn()
 vi.mock('vue-router', async () => {
@@ -15,6 +17,7 @@ vi.mock('vue-router', async () => {
 
 describe('RegisterView', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.restoreAllMocks()
     pushMock.mockClear()
   })
@@ -92,6 +95,12 @@ describe('RegisterView', () => {
   })
 
   it('handles successful registration with Arnaud Guevaer (HTTP 201)', async () => {
+    const authStore = useAuthStore()
+    const loginSpy = vi.spyOn(authStore, 'login').mockResolvedValue({
+      success: true,
+      message: 'Connexion réussie.',
+    })
+
     const fetchMock = vi.fn().mockResolvedValue({
       status: 201,
       ok: true,
@@ -128,8 +137,39 @@ describe('RegisterView', () => {
       password: 'Password123!',
     })
 
-    // Vérifie la redirection immédiate vers l'accueil
+    // Vérifie l'authentification automatique immédiate et la redirection vers l'accueil
+    expect(loginSpy).toHaveBeenCalledWith('arnaud@famylist.fr', 'Password123!')
     expect(pushMock).toHaveBeenCalledWith('/')
+  })
+
+  it('redirects to /login when auto-login fails after HTTP 201 registration', async () => {
+    const authStore = useAuthStore()
+    const loginSpy = vi.spyOn(authStore, 'login').mockResolvedValue({
+      success: false,
+      message: 'Erreur de connexion.',
+    })
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      status: 201,
+      ok: true,
+      json: async () => ({
+        message: 'Inscription réussie.',
+      }),
+    })
+    globalThis.fetch = fetchMock
+
+    const wrapper = createWrapper()
+
+    await wrapper.find('#firstName').setValue('Arnaud')
+    await wrapper.find('#lastName').setValue('Guevaer')
+    await wrapper.find('#email').setValue('arnaud@famylist.fr')
+    await wrapper.find('#password').setValue('Password123!')
+
+    await wrapper.find('form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(loginSpy).toHaveBeenCalledWith('arnaud@famylist.fr', 'Password123!')
+    expect(pushMock).toHaveBeenCalledWith('/login')
   })
 
   it('displays duplicate email error from backend (HTTP 422)', async () => {
