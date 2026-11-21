@@ -283,4 +283,31 @@ class ProfileControllerTest extends WebTestCase
         $this->assertSame('Données non conformes.', $data['message']);
         $this->assertArrayHasKey('newPassword', $data['errors']);
     }
+
+    public function testProfileUpdatePartialPatchSucceeds(): void
+    {
+        $user = $this->createTestUser('arnaud@famylist.fr', 'Password123!');
+        $this->client->loginUser($user);
+
+        // Envoi d'un PATCH partiel avec uniquement le prénom
+        $this->client->request(
+            'PATCH',
+            '/api/me',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'firstName' => 'Arnaud-Partiel',
+            ], JSON_THROW_ON_ERROR)
+        );
+
+        $response = $this->client->getResponse();
+        $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        /** @var array{message: string, user: array{firstName: string, lastName: string, email: string}} $data */
+        $data = json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('Arnaud-Partiel', $data['user']['firstName']);
+        $this->assertSame('Guevaer', $data['user']['lastName']);
+        $this->assertSame('arnaud@famylist.fr', $data['user']['email']);
+    }
 }

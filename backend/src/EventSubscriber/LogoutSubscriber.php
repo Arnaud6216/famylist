@@ -31,7 +31,8 @@ class LogoutSubscriber implements EventSubscriberInterface
                 'message' => 'Déconnexion réussie.',
             ], Response::HTTP_OK);
 
-            $response->headers->clearCookie('PHPSESSID', '/', null, false, true, 'lax');
+            // Invalider le cookie de session PHPSESSID côté client en respectant le protocole (Secure en HTTPS)
+            $response->headers->clearCookie('PHPSESSID', '/', null, $request->isSecure(), true, 'lax');
 
             $event->setResponse($response);
         }

@@ -52,12 +52,28 @@ class UpdateProfileController extends AbstractController
         }
 
         $violations = $this->validator->validate($dto);
+        $errors = [];
         if (count($violations) > 0) {
-            $errors = [];
             foreach ($violations as $violation) {
                 $errors[$violation->getPropertyPath()][] = $violation->getMessage();
             }
+        }
 
+        if ('PUT' === $request->getMethod()) {
+            if (null === $dto->firstName || '' === trim($dto->firstName)) {
+                $errors['firstName'][] = 'Le prénom est obligatoire.';
+            }
+            if (null === $dto->lastName || '' === trim($dto->lastName)) {
+                $errors['lastName'][] = 'Le nom est obligatoire.';
+            }
+            if (null === $dto->email || '' === trim($dto->email)) {
+                $errors['email'][] = "L'adresse email est obligatoire.";
+            }
+        } elseif (null === $dto->firstName && null === $dto->lastName && null === $dto->email) {
+            $errors['general'][] = 'Au moins un champ doit être fourni pour une mise à jour.';
+        }
+
+        if (count($errors) > 0) {
             return new JsonResponse([
                 'message' => 'Données non conformes.',
                 'errors' => $errors,

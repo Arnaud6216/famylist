@@ -29,17 +29,24 @@ class UserService
      */
     public function updateProfile(User $user, UpdateProfileDTO $dto): User
     {
-        $newEmail = (string) $dto->email;
-        if (strtolower($newEmail) !== strtolower($user->getEmail())) {
-            $existingUser = $this->userRepository->findOneBy(['email' => $newEmail]);
-            if ($existingUser && $existingUser->getId() !== $user->getId()) {
-                throw new EmailAlreadyUsedException('Cette adresse email est déjà utilisée.');
+        if (null !== $dto->email) {
+            $newEmail = (string) $dto->email;
+            if (strtolower($newEmail) !== strtolower($user->getEmail())) {
+                $existingUser = $this->userRepository->findOneBy(['email' => $newEmail]);
+                if ($existingUser && $existingUser->getId() !== $user->getId()) {
+                    throw new EmailAlreadyUsedException('Cette adresse email est déjà utilisée.');
+                }
             }
+            $user->setEmail($newEmail);
         }
 
-        $user->setFirstName((string) $dto->firstName);
-        $user->setLastName((string) $dto->lastName);
-        $user->setEmail($newEmail);
+        if (null !== $dto->firstName) {
+            $user->setFirstName((string) $dto->firstName);
+        }
+
+        if (null !== $dto->lastName) {
+            $user->setLastName((string) $dto->lastName);
+        }
 
         $this->entityManager->flush();
 

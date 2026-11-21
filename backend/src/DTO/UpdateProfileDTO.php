@@ -8,7 +8,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class UpdateProfileDTO
 {
-    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
     #[Assert\Length(
         min: 2,
         max: 50,
@@ -17,7 +16,6 @@ class UpdateProfileDTO
     )]
     public ?string $firstName = null;
 
-    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
     #[Assert\Length(
         min: 2,
         max: 50,
@@ -26,8 +24,12 @@ class UpdateProfileDTO
     )]
     public ?string $lastName = null;
 
-    #[Assert\NotBlank(message: "L'adresse email est obligatoire.")]
     #[Assert\Email(message: "Le format de l'adresse email est invalide.")]
-    #[Assert\Length(max: 255, maxMessage: "L'adresse email ne peut pas dépasser {{ limit }} caractères.")]
+    #[Assert\Length(
+        min: 5,
+        max: 255,
+        minMessage: "L'adresse email doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "L'adresse email ne peut pas dépasser {{ limit }} caractères."
+    )]
     public ?string $email = null;
 }

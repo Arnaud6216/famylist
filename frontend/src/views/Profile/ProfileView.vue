@@ -39,6 +39,9 @@
             <h1 class="profile-name">
               {{ authStore.user?.firstName }} {{ authStore.user?.lastName }}
             </h1>
+            <p v-if="authStore.user?.email" class="profile-email">
+              {{ authStore.user.email }}
+            </p>
             <p v-if="formattedCreatedAt" class="profile-created-at">
               Inscrit le {{ formattedCreatedAt }}
             </p>
@@ -160,8 +163,17 @@
                 </span>
               </div>
 
-              <!-- Bouton d'enregistrement profil -->
+              <!-- Boutons d'action profil -->
               <div class="profile-actions">
+                <button
+                  v-if="isDirty"
+                  type="button"
+                  class="btn-cancel"
+                  :disabled="isProfileLoading"
+                  @click="resetProfileForm"
+                >
+                  Annuler
+                </button>
                 <button
                   type="submit"
                   class="btn-save"

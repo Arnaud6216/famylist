@@ -58,6 +58,11 @@ describe('ProfileView', () => {
     const name = wrapper.find('.profile-name')
     expect(name.text()).toContain('Arnaud Guevaer')
 
+    // Vérifie l'adresse email en lecture seule dans l'en-tête (CA 3)
+    const emailHeader = wrapper.find('.profile-email')
+    expect(emailHeader.exists()).toBe(true)
+    expect(emailHeader.text()).toBe('arnaud@famylist.fr')
+
     // Vérifie les champs pré-remplis
     const firstNameInput = wrapper.find<HTMLInputElement>('#profile-first-name')
     const lastNameInput = wrapper.find<HTMLInputElement>('#profile-last-name')
@@ -91,6 +96,18 @@ describe('ProfileView', () => {
     // Rétablissement de la valeur initiale -> bouton à nouveau désactivé
     await wrapper.find('#profile-first-name').setValue('Arnaud')
     expect(submitBtn.attributes('disabled')).toBeDefined()
+  })
+
+  it('cancels profile editing and resets inputs when clicking cancel button', async () => {
+    const wrapper = createWrapper()
+    const firstNameInput = wrapper.find<HTMLInputElement>('#profile-first-name')
+    await firstNameInput.setValue('Arnaud-Nouveau')
+
+    const cancelBtn = wrapper.findAll('.btn-cancel').find(btn => btn.text().includes('Annuler'))
+    expect(cancelBtn).toBeDefined()
+    await cancelBtn?.trigger('click')
+
+    expect(firstNameInput.element.value).toBe('Arnaud')
   })
 
   it('validates client-side inputs when submitting invalid fields', async () => {
